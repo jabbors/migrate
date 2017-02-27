@@ -20,6 +20,7 @@ type Driver struct {
 var (
 	dsn        = "Driver=%s;Servername=%s;Port=%s;Database=%s;uid=%s;pwd=%s;"
 	odbcDriver = "Vertica"
+	verbose    = false
 )
 
 const tableName = "schema_migrations"
@@ -49,6 +50,9 @@ func createDSN(url string) (string, error) {
 	v := u.Query()
 	if _, ok := v["driver"]; ok {
 		odbcDriver = v.Get("driver")
+	}
+	if _, ok := v["verbose"]; ok {
+		verbose = true
 	}
 
 	return fmt.Sprintf(dsn, odbcDriver, host, port, database, username, password), nil
@@ -139,6 +143,9 @@ func (driver *Driver) Migrate(f file.File, pipe chan interface{}) {
 		command = strings.Trim(command, "\n")
 		if command == "" || strings.HasPrefix(command, "--") {
 			continue
+		}
+		if verbose {
+			pipe <- fmt.Sprintf("executing command '%s'", command)
 		}
 		if _, err := tx.Exec(command); err != nil {
 			pipe <- err

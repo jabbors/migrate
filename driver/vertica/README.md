@@ -20,6 +20,8 @@ Optional paramters:
 | Parameter | Value | Description |
 |-----------|-------|-------------|
 | driver    | name  | name of the installed driver (default: Vertica) |
+| verbose   | -     | print executed commands during migrations (default: false) |
+
 
 ## Note
 
