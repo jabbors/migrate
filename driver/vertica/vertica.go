@@ -127,12 +127,20 @@ func (driver *Driver) Migrate(f file.File, pipe chan interface{}) {
 		return
 	}
 
-	if _, err := tx.Exec(string(f.Content)); err != nil {
-		pipe <- err
-		if err := tx.Rollback(); err != nil {
-			pipe <- err
+	// ODBC makes a prepared statement so one can only do one command per Exec
+	commands := strings.Split(string(f.Content), ";")
+	for _, command := range commands {
+		command = strings.Trim(command, "\n")
+		if command == "" || strings.HasPrefix(command, "--") {
+			continue
 		}
-		return
+		if _, err := tx.Exec(command); err != nil {
+			pipe <- err
+			if err := tx.Rollback(); err != nil {
+				pipe <- err
+			}
+			return
+		}
 	}
 
 	if err := tx.Commit(); err != nil {
