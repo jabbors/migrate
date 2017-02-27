@@ -15,6 +15,12 @@ migrate -url vertica://user@host:port/database -path ./db/migrations up
 migrate help # for more info
 ```
 
+Optional paramters:
+
+| Parameter | Value | Description |
+|-----------|-------|-------------|
+| driver    | name  | name of the installed driver (default: Vertica) |
+
 ## Note
 
 This driver is based on https://github.com/alexbrainman/odbc/ and requires, besides unixODBC that

@@ -18,7 +18,8 @@ type Driver struct {
 }
 
 var (
-	dsn = "Driver=%s;Servername=%s;Port=%s;Database=%s;uid=%s;pwd=%s;"
+	dsn        = "Driver=%s;Servername=%s;Port=%s;Database=%s;uid=%s;pwd=%s;"
+	odbcDriver = "Vertica"
 )
 
 const tableName = "schema_migrations"
@@ -45,7 +46,12 @@ func createDSN(url string) (string, error) {
 		password, _ = u.User.Password()
 	}
 
-	return fmt.Sprintf(dsn, "Vertica", host, port, database, username, password), nil
+	v := u.Query()
+	if _, ok := v["driver"]; ok {
+		odbcDriver = v.Get("driver")
+	}
+
+	return fmt.Sprintf(dsn, odbcDriver, host, port, database, username, password), nil
 }
 
 func (driver *Driver) Initialize(url string) error {
